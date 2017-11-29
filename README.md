@@ -117,6 +117,8 @@ npm upgrade 模块名
 
 ## 联调
 
+### 运行在node环境的npm包联调
+
 当我们的项目存在bug需要修改的时候，往往需要在执行一遍开发模块补丁、模块升级、发布模块、升级模块这个过程，这样非常麻烦。
 
 我们可以执行`npm link`来简化联调过程。
@@ -144,7 +146,22 @@ npm unlink 模块名
 npm isntall 模块名
 ```
 
+### 运行在webpack环境的npm包联调
 
+如果是由webpack打包，可以用更加简单联调。在webpack的配置文件里面，可以使用`resolve.alias`配置，让webpack引用包的时候使用`resolve.alias`后配置的路径。
+
+```
+resolve: {
+    alias: {
+        'my-module': path.join(__dirname, 'my-module的路径'),
+    },
+    ...
+}
+```
+这样webpack会忽略掉node_modules的同名包，而去使用配置路径下的npm包
+
+### 注意事项
+无论使用npm link还是webpack的alias，都会产生一个问题 ———— 调试的npm包在使用require的时候，都会在他所在目录下寻找。例如我们开发的项目A，依赖我们联调的项目B，两个项目都依赖项目C。如果是在非联调状态下，项目A和项目B可以同时依赖同一个项目C(node6以上)；但是在联调状态下，项目A、B都会依赖他们自己项目下安装的项目C。也就是说项目C在内存中，会执行两次，如果项目C存在A和B共享的变量时候，就会出现错误。
 
 ## 测试用例
 
